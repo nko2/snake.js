@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>snake</title>
+<style>
+body{
+	font-size:12px;
+	width:1100px;
+	margin:0 auto;
+	}
+body * {
+	border: 1px solid red;
+}
+#header {height:150px;}
+#playground {width:800px;height:600px;float:left;}
+#scoreboard {margin-left:800px;height:600px;}
+#footer {clear:both;height:100px;}
+</style>
+</head>
+<body>
+<div id="header">header</div>
+<div id="playground">playing ground</div>
+<div id="scoreboard">scoreboard</div>
+<div id="footer">footer</div>
+</body>
+</html>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+</script>
