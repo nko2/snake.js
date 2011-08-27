@@ -13,6 +13,10 @@
                 console.log(data);
                 socket.emit('my other event', {my: 'data'});
             });
+
+            socket.on('game state', function(data){
+                console.log(data);
+            });
             
             // key events
             $(document).keydown(function(event){

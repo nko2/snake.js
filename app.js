@@ -6,6 +6,7 @@ var http = require('http'),
     app = require('express').createServer(),
     io = require('socket.io').listen(app);
 
+// app server
 app.configure(function(){
     app.use(express.static(__dirname + '/static'));
 });
@@ -23,22 +24,56 @@ app.get('/', function (req, res) {
     res.sendfile(__dirname + '/index.html');
 });
 
-var validDirections = ['up', 'down', 'left', 'right'];
+// game globals
+var VALID_DIRECTIONS = ['up', 'down', 'left', 'right'];
+var X = { MIN : 0, MAX : 79 };
+var Y = { MIN : 0, MAX : 59 };
+var FRAME_LENGTH = 200; //ms
 
+// maps
+var map1 = function() {
+    var walls = [];
+    _.each( _.range( X.MIN, X.MAX ), function( x ) {
+        walls.push( [ x, Y.MIN ] );
+        walls.push( [ x, Y.MAX ] );
+    });
+    _.each( _.range( Y.MIN + 1, Y.MAX - 1 ), function( y ) {
+        walls.push( [ X.MIN, y ] );
+        walls.push( [ X.MAX, y ] );
+    });
+    return walls;
+};
+
+// game
+var game = {
+    frame : 0,
+    ts : Date.now(),
+    snakes : [],
+    walls : map1()
+};
+
+// frame by frame!
+setInterval( function() {
+    _.each( io.sockets.sockets, function( socket ) {
+        socket.emit('game state', game);
+    });
+}, FRAME_LENGTH );
+
+// socket logic
 io.sockets.on('connection', function (socket) {
 
     //api: socket.emit('set nickname', {nickname: 'bot'});
     socket.on('set nickname', function (data) {
         socket.set('nickname', data.nickname, function() {
-            socket.emit('set nickname ok', {data:'me'});
+            socket.emit('set nickname ok');
         });
     });
 
     //api: socket.emit('set direction', {direction: 'up', 'down', 'left', 'right'});
     socket.on('set direction', function (data) {
-        if( _.contains( validDirections, data.direction )) {
+        if( _.contains( VALID_DIRECTIONS, data.direction )) {
             socket.set('direction', data.direction, function() {
-                socket.emit('set direction ok', {data:'me'});
+                socket.emit('set direction ok');
             });
         } else {
             socket.emit('set direction fail');
@@ -47,5 +82,6 @@ io.sockets.on('connection', function (socket) {
 
     socket.emit('news', { hello: 'world' });
 });
+
 
 console.log('Listening on ' + app.address().port);
