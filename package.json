@@ -1,0 +1,17 @@
+{
+  "name": "Snake",
+  "description": "Snake game.",
+  "version": "0.0.0",
+  "homepage": "http://snake.no.de",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nko2/team-tbders.git"
+  },
+  "author": "Charlie Yuan, Mindy Weng",
+  "directories": {
+    "lib": "."
+  },
+  "engines": {
+    "node": "*"
+  }
+}
