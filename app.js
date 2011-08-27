@@ -1,9 +1,13 @@
 // server.js 
 var http = require('http'),
-    nko = require('nko')('ERgE+tx6AIvYXqIr');
+    nko = require('nko')('ERgE+tx6AIvYXqIr'), 
+    express = require('express'),
+    app = require('express').createServer(),
+    io = require('socket.io').listen(app);
 
-var app = require('express').createServer()
-  , io = require('socket.io').listen(app);
+app.configure(function(){
+  app.use(express.static(__dirname + '/static'));
+});
 
 app.listen(process.env.NODE_ENV === 'production' ? 80 : 8000, function() {
   console.log('Ready');
