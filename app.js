@@ -26,20 +26,20 @@ app.get('/', function (req, res) {
 
 // game globals
 var VALID_DIRECTIONS = ['up', 'down', 'left', 'right'];
-var X = { MIN : 0, MAX : 79 };
-var Y = { MIN : 0, MAX : 59 };
-var FRAME_LENGTH = 200; //ms
+var X = { MIN : 0, LENGTH : 80 };
+var Y = { MIN : 0, LENGTH : 60 };
+var FRAME_LENGTH = 500; //ms
 
 // maps
 var map1 = function() {
     var walls = [];
-    _.each( _.range( X.MIN, X.MAX ), function( x ) {
+    _.each( _.range( X.MIN, X.LENGTH ), function( x ) {
         walls.push( [ x, Y.MIN ] );
         walls.push( [ x, Y.MAX ] );
     });
-    _.each( _.range( Y.MIN + 1, Y.MAX - 1 ), function( y ) {
+    _.each( _.range( Y.MIN + 1, Y.LENGTH - 1 ), function( y ) {
         walls.push( [ X.MIN, y ] );
-        walls.push( [ X.MAX, y ] );
+        walls.push( [ X.LENGTH - 1, y ] );
     });
     return walls;
 };
@@ -52,8 +52,12 @@ var game = {
     walls : map1()
 };
 
-// frame by frame!
+// send system state
 setInterval( function() {
+    game.frame += 1;
+    game.ts = Date.now();
+
+    // send to all the users
     _.each( io.sockets.sockets, function( socket ) {
         socket.emit('game state', game);
     });
