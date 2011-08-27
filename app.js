@@ -26,9 +26,15 @@ app.get('/', function (req, res) {
 
 // game globals
 var VALID_DIRECTIONS = ['up', 'down', 'left', 'right'];
+var DEFAULT_NAMES = ['Sneezy', 'Sleepy', 'Dopey', 'Doc', 'Happy', 'Bashful', 'Grumpy'];
+var DEFAULT_COLORS = ['#C00', '#0C0', '#00C'];
 var X = { MIN : 0, LENGTH : 80 };
 var Y = { MIN : 0, LENGTH : 60 };
 var FRAME_LENGTH = 500; //ms
+var STATE = { ALIVE : 'alive', DEAD : 'dead', BABY : 'baby' };
+var MAX_BABY = 10;
+var BABY_LENGTH = 3;
+var BABY_TIME = 3000;
 
 // maps
 var map1 = function() {
@@ -48,14 +54,49 @@ var map1 = function() {
 var game = {
     frame : 0,
     ts : Date.now(),
-    snakes : [],
+    snakes : {},
     walls : map1()
 };
+
+// new snakes
+var babyIndex = 0;
+
+// Snake
+var Snake = function(){
+    this.createdAt = Date.now();
+};
+
+Snake.prototype.setNickname = function( nickname ) {
+    this.nickname = nickname;
+};
+
+Snake.prototype.setColor = function( color ) {
+    this.color = color;
+};
+
+Snake.prototype.setBody = function( body ) {
+    this.body = body;
+};
+
+Snake.prototype.setState = function( state ) {
+    this.state = state;
+};
+
+Snake.prototype.setDirection = function( direction ) {
+    this.direction = direction;
+};
+
 
 // send system state
 setInterval( function() {
     game.frame += 1;
     game.ts = Date.now();
+
+    _.each(game.snakes, function( v ) {
+        if( v.state == STATE.BABY && (Date.now() - v.createdAt) > BABY_TIME) {
+            v.setState(STATE.ALIVE);
+        }
+    });
 
     // send to all the users
     _.each( io.sockets.sockets, function( socket ) {
@@ -64,21 +105,32 @@ setInterval( function() {
 }, FRAME_LENGTH );
 
 // socket logic
+io.set('log level', 1);
 io.sockets.on('connection', function (socket) {
+
+    var snake = new Snake();
+    snake.setNickname( DEFAULT_NAMES[+socket.id.substring(0, 10) % DEFAULT_NAMES.length] );
+    snake.setColor( DEFAULT_COLORS[+socket.id.substring(0, 10) % DEFAULT_COLORS.length] );
+    snake.setState( STATE.BABY );
+    var start = [ BABY_LENGTH, (++babyIndex % MAX_BABY) ];
+    var body = [];
+    for( var i = BABY_LENGTH, ii = 0; i > ii; --i ) {
+        body.push( [ i, start[1] ] );
+    }
+    snake.setBody( body );
+    snake.setDirection( 'right' );
+
+    game.snakes[socket.id] = snake;
 
     //api: socket.emit('set nickname', {nickname: 'bot'});
     socket.on('set nickname', function (data) {
-        socket.set('nickname', data.nickname, function() {
-            socket.emit('set nickname ok');
-        });
+        game.snakes[socket.id].setNickname( data.nickname );
     });
 
     //api: socket.emit('set direction', {direction: 'up', 'down', 'left', 'right'});
     socket.on('set direction', function (data) {
         if( _.contains( VALID_DIRECTIONS, data.direction )) {
-            socket.set('direction', data.direction, function() {
-                socket.emit('set direction ok');
-            });
+            game.snakes[socket.id].setDirection( data.direction );
         } else {
             socket.emit('set direction fail');
         }
