@@ -17,6 +17,7 @@
   "dependencies": {
     "nko": "*",
     "express":"*",
-    "socket.io":"*"
+    "socket.io":"*",
+    "underscore":"*"
   }
 }

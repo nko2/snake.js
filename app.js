@@ -1,5 +1,6 @@
-// server.js 
 var http = require('http'),
+    _ = require('underscore'),
+    util = require('util'),
     nko = require('nko')('ERgE+tx6AIvYXqIr'), 
     express = require('express'),
     app = require('express').createServer(),
@@ -22,11 +23,29 @@ app.get('/', function (req, res) {
     res.sendfile(__dirname + '/index.html');
 });
 
+var validDirections = ['up', 'down', 'left', 'right'];
+
 io.sockets.on('connection', function (socket) {
-    socket.emit('news', { hello: 'world' });
-    socket.on('my other event', function (data) {
-        console.log(data);
+
+    //api: socket.emit('set nickname', {nickname: 'bot'});
+    socket.on('set nickname', function (data) {
+        socket.set('nickname', data.nickname, function() {
+            socket.emit('set nickname ok', {data:'me'});
+        });
     });
+
+    //api: socket.emit('set direction', {direction: 'up', 'down', 'left', 'right'});
+    socket.on('set direction', function (data) {
+        if( _.contains( validDirections, data.direction )) {
+            socket.set('direction', data.direction, function() {
+                socket.emit('set direction ok', {data:'me'});
+            });
+        } else {
+            socket.emit('set direction fail');
+        }
+    });
+
+    socket.emit('news', { hello: 'world' });
 });
 
 console.log('Listening on ' + app.address().port);
