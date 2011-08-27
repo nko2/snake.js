@@ -15,20 +15,14 @@ body * {
 #scoreboard {margin-left:800px;height:600px;}
 #footer {clear:both;height:100px;}
 </style>
-<script src="/jquery-1.6.2.min.js"></script>
-</head>
 <body>
 <div id="header">header</div>
-<div id="playground">playing ground</div>
+<div id="playground">
+    <canvas id="canvas"></canvas></div>
 <div id="scoreboard">scoreboard</div>
 <div id="footer">footer</div>
 </body>
 </html>
+<script src="/jquery-1.6.2.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script>
-  var socket = io.connect('/');
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
-  });
-</script>
+<script src="/client.js"></script>
