@@ -38,6 +38,9 @@ var BABY_LENGTH = 3;
 var BABY_TIME = 1000;
 var DEATH_TIME = 1000;
 
+// new snakes
+var babyIndex = 0;
+
 // levels
 var level1 = (function() {
     /*
@@ -55,6 +58,15 @@ var level1 = (function() {
     return []
 })();
 
+// game
+var game = {
+    frame : 0,
+    ts : Date.now(),
+    snakes : {},
+    walls : level1
+};
+
+
 //server collision map
 var Map = function(){
     this.data = {};
@@ -65,7 +77,6 @@ Map.prototype.key = function( coord ) {
 Map.prototype.get = function( coord ) {
     return this.data[this.key(coord)];
 };
-
 Map.prototype.set = function( coord, o ) {
     var point = this.get(coord);
     if( !point ){ 
@@ -94,6 +105,7 @@ Map.prototype.simulate = function() {
             console.log('object collision');
             var headHits = [];
             var bodyHits = [];
+            var cherryHits = [];
             _.each( items, function( item ){
                 if ( item instanceof Snake ) {
                     if ( that.key(item.body[0]) == coord ) {
@@ -103,7 +115,7 @@ Map.prototype.simulate = function() {
                     }
                 }
             });
-            if ( headHits.length > 0 && bodyHits.length > 0 ){
+            if ( headHits.length > 0 && cherryHits.length == 0 ){
                 _.each( headHits, function(headHit){
                     headHit.die( STATE.DEATH_BY_SNAKE );
                 });
@@ -112,48 +124,29 @@ Map.prototype.simulate = function() {
     });
 };
 
-// game
-var game = {
-    frame : 0,
-    ts : Date.now(),
-    snakes : {},
-    walls : level1
-};
-
-// new snakes
-var babyIndex = 0;
-
 // Snake
 var Snake = function(){
     this.createdAt = Date.now();
 };
-
 Snake.prototype.die = function( method ) {
-console.log('die');
     if( !this.diedAt ) {
         this.state = method;
         this.diedAt = Date.now();
     }
 };
-
 Snake.prototype.setNickname = function( nickname ) {
     this.nickname = nickname;
 };
-
 Snake.prototype.setColor = function( color ) {
     this.color = color;
 };
-
 Snake.prototype.setBody = function( body ) {
     this.body = body;
 };
-
 Snake.prototype.setState = function( state ) {
     this.state = state;
 };
-
 Snake.prototype.setDirection = function( direction ) {
-
     if ( OPPOSITE_DIRECTIONS[direction] !== this.direction ) {
         this.newDirection = direction;
     }
@@ -161,7 +154,6 @@ Snake.prototype.setDirection = function( direction ) {
 Snake.prototype.resetDirection = function() {
     this.newDirection = 'right';
 };
-
 Snake.prototype.move = function() {
     var newX = this.body[0][0];
     var newY = this.body[0][1];
@@ -178,7 +170,6 @@ Snake.prototype.move = function() {
     this.body.pop();
     this.body.unshift([newX, newY]);
 };
-
 Snake.prototype.moveToStart = function() {
     var start = [ BABY_LENGTH, (babyIndex++ % MAX_BABY) + 1 ];
     var body = [];
@@ -188,12 +179,11 @@ Snake.prototype.moveToStart = function() {
     this.setBody( body );
     this.resetDirection();
 };
-
 Snake.prototype.died = function() {
     return this.state == STATE.DEATH_BY_BOUNDARY || this.state == STATE.DEATH_BY_SNAKE;
 };
 
-// send system state
+// GAME!
 setInterval( function() {
     var start = Date.now();
     game.frame += 1;
