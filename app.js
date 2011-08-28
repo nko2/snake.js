@@ -31,7 +31,7 @@ var DEFAULT_NAMES = ['Sneezy', 'Sleepy', 'Dopey', 'Doc', 'Happy', 'Bashful', 'Gr
 var DEFAULT_COLORS = ['#C00', '#0C0', '#00C'];
 var X = { MIN : 0, LENGTH : 80 };
 var Y = { MIN : 0, LENGTH : 60 };
-var FRAME_LENGTH = 500; //ms
+var FRAME_LENGTH = 150; //ms
 var STATE = { ALIVE : 'alive', DEATH_BY_BOUNDARY : 'deathByBoundary', DEATH_BY_SNAKE : 'deathBySnake', BABY : 'baby' };
 var MAX_BABY = 10;
 var BABY_LENGTH = 3;
@@ -63,6 +63,7 @@ var game = {
     frame : 0,
     ts : Date.now(),
     snakes : {},
+    cherries : [],
     walls : level1
 };
 
@@ -113,9 +114,21 @@ Map.prototype.simulate = function() {
                     } else {
                         bodyHits.push(item);
                     }
+                } else if ( item instanceof Cherry ) {
+                    cherryHits.push(item);
                 }
             });
-            if ( headHits.length > 0 && cherryHits.length == 0 ){
+
+            //add cherry first
+            if ( cherryHits.length == 1 ){
+                _.each( headHits, function(headHit){
+                    headHit.eat(cherryHits[0]);
+                    cherryHits[0].clear();
+                });
+            }
+           
+            //calculate collision     
+            if ( headHits.length > 1 || bodyHits.length > 0 ) {
                 _.each( headHits, function(headHit){
                     headHit.die( STATE.DEATH_BY_SNAKE );
                 });
@@ -127,11 +140,17 @@ Map.prototype.simulate = function() {
 // Snake
 var Snake = function(){
     this.createdAt = Date.now();
+    this.food = 0;
 };
 Snake.prototype.die = function( method ) {
     if( !this.diedAt ) {
         this.state = method;
         this.diedAt = Date.now();
+    }
+};
+Snake.prototype.eat = function( item ) {
+    if( item instanceof Cherry ){
+        this.food += item.food;
     }
 };
 Snake.prototype.setNickname = function( nickname ) {
@@ -167,7 +186,11 @@ Snake.prototype.move = function() {
     } else {
         ++newX;
     }
-    this.body.pop();
+    if(this.food <= 0){
+        this.body.pop();
+    } else {
+        --this.food;
+    };
     this.body.unshift([newX, newY]);
 };
 Snake.prototype.moveToStart = function() {
@@ -183,6 +206,44 @@ Snake.prototype.died = function() {
     return this.state == STATE.DEATH_BY_BOUNDARY || this.state == STATE.DEATH_BY_SNAKE;
 };
 
+// coord
+var Coord = function(x, y){
+    this.x = x;
+    this.y = y;
+};
+Coord.prototype.toString = function() {
+    return '' + this.x + ',' + this.y;
+};
+
+// cherry
+var CHERRY_FOOD = 5;
+var CHERRY_LIFETIME = 300;
+var MAX_CHERRIES = 30;
+var CHERRY_ODDS = 0.5;
+var Cherry = function(map){
+    if ( Math.random() > CHERRY_ODDS ) {
+        return;
+    }
+    this.food = CHERRY_FOOD;
+    this.lifetime = CHERRY_LIFETIME;
+    this.active = false;
+
+    var x = Math.floor(Math.random() * X.LENGTH);
+    var y = Math.floor(Math.random() * Y.LENGTH);
+    this.coord = [ x, y ];
+    
+    var occupied = map.get(this.coord);
+    if (!occupied){
+        this.active = true;
+    }
+};
+Cherry.prototype.toString = function(){
+    return util.inspect(this);
+}
+Cherry.prototype.clear = function(){
+    this.lifetime = 0;
+}
+
 // GAME!
 setInterval( function() {
     var start = Date.now();
@@ -190,7 +251,7 @@ setInterval( function() {
     game.ts = Date.now();
 
     var map = new Map();
-    // compute new states
+    // compute new snake states
     _.each(game.snakes, function( snake, i, o ) {
         if( snake.state == STATE.BABY && (Date.now() - snake.createdAt) > BABY_TIME) {
             snake.setState(STATE.ALIVE);
@@ -212,7 +273,30 @@ setInterval( function() {
         }
     });
 
+    // add cherries to map
+    _.each(game.cherries, function(cherry){
+        map.set(cherry.coord, cherry);
+    });
+
     map.simulate();
+
+    //update cherries
+    var updatedCherries = [];
+    _.each(game.cherries, function(cherry, i, o) {
+        --cherry.lifetime;
+        if(cherry.lifetime > 0){
+            updatedCherries.push(cherry);
+        }
+    });
+    game.cherries = updatedCherries;
+
+    if ( game.cherries.length < MAX_CHERRIES ) {
+        var cherry = new Cherry(map);
+        if (cherry.active) {
+            game.cherries.push(cherry);    
+        }
+    }
+//    console.log(game.cherries);
 
     //console.log( 'Frame took ' + (Date.now() - start) + 'ms to compute' );
     // send to all the users

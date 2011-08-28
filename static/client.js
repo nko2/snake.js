@@ -50,7 +50,6 @@
                 context.fillStyle = snake.color;
                 if(snake.state === "baby"){
                     $(snake.body).each(function(index, block){
-
                         drawBlock(10*block[posX], 10*block[posY]);
                     });
                 }else if(snake.state === "alive"){
@@ -61,18 +60,29 @@
             }
             // draw/update snakes
             var drawSnakes = function(snakes){
-                //$(snakes).each(function(index, snake){ drawOneSnake(snake);});
                 _.each(snakes, function(snake){
                     drawOneSnake(snake);
                 });
             }
+        
+            var drawOneCherry = function(cherry){
+                context.fillStyle = '#8B0000';
+                drawBlock(10*cherry.coord[0], 10*cherry.coord[1]);
+            };
+
+            var drawCherries = function(cherries){
+                _.each(cherries, function(cherry){
+                    drawOneCherry(cherry);
+                });
+            };
 
             // connect
             var socket = io.connect("/");
             socket.on('game state', function(data){
-                //console.log(data);
+                console.log(data);
                 clearMap();
                 drawSnakes(data.snakes);
+                drawCherries(data.cherries);
             });
             // key events
             $(document).keydown(function(event){
