@@ -142,6 +142,7 @@ Map.prototype.simulate = function() {
 var Snake = function(){
     this.createdAt = Date.now();
     this.food = 0;
+    this.score = 0;
 };
 Snake.prototype.die = function( method ) {
     if( !this.diedAt ) {
@@ -154,10 +155,11 @@ Snake.prototype.eat = function( item ) {
     if( item instanceof Cherry ){
         this.food += item.food;
         this.action = actionBuilder.eatToAction(FOOD.CHERRY);
+        this.score += 8;
     }
 };
 Snake.prototype.setNickname = function( nickname ) {
-    this.nickname = nickname;
+    this.nickname = nickname.substring(0, 9);
 };
 Snake.prototype.setColor = function( color ) {
     this.color = color;
@@ -207,6 +209,13 @@ Snake.prototype.moveToStart = function() {
 };
 Snake.prototype.died = function() {
     return this.state == STATE.DEATH_BY_BOUNDARY || this.state == STATE.DEATH_BY_SNAKE;
+};
+Snake.prototype.reset = function() {
+    this.createdAt = Date.now();
+    delete this.diedAt;
+    this.state = STATE.BABY;
+    this.moveToStart();
+    this.score = 0;
 };
 
 // coord
@@ -290,22 +299,20 @@ setInterval( function() {
         }
         //move to start if died for enough time
         if( snake.died() && (Date.now() - snake.diedAt) > DEATH_TIME) {
-            snake.createdAt = Date.now();
-            delete snake.diedAt;
-            snake.state = STATE.BABY;
-            snake.moveToStart();
+            snake.reset();
         }
         //move alive snakes
         if( snake.state == STATE.ALIVE ) {
             snake.move();
         }
-
         if( snake.state == STATE.ALIVE ){
             _.each(snake.body, function( section ) {
                 map.set(section, snake);
             });
         }
     });
+
+    util.log(util.inspect(game.snakes));
 
     // add cherries to map
     _.each(game.cherries, function(cherry){
