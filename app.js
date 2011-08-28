@@ -32,7 +32,7 @@ var DEFAULT_COLORS = ['#C00', '#0C0', '#00C'];
 var X = { MIN : 0, LENGTH : 80 };
 var Y = { MIN : 0, LENGTH : 60 };
 var FRAME_LENGTH = 500; //ms
-var STATE = { ALIVE : 'alive', DEATH_BY_BOUNDARY : 'deathByBoundary', BABY : 'baby' };
+var STATE = { ALIVE : 'alive', DEATH_BY_BOUNDARY : 'deathByBoundary', DEATH_BY_SNAKE : 'deathBySnake', BABY : 'baby' };
 var MAX_BABY = 10;
 var BABY_LENGTH = 3;
 var BABY_TIME = 1000;
@@ -77,6 +77,7 @@ Map.prototype.set = function( coord, o ) {
     }
 };
 Map.prototype.simulate = function() {
+    var that = this;
     _.each( this.data, function(items, i){
         var coord = i.split(',');
         var x = +coord[0];
@@ -84,14 +85,29 @@ Map.prototype.simulate = function() {
         if ( x < X.MIN || y < Y.MIN || x >= X.LENGTH || y >= Y.LENGTH ) {
             console.log('wall collision');
             _.each( items, function( item ){
-                if( !item.diedAt ) {
-                    item.state = STATE.DEATH_BY_BOUNDARY;
-                    item.diedAt = Date.now();
+                if ( item instanceof Snake ) {
+                    item.die( STATE.DEATH_BY_BOUNDARY );
                 }
             });
         }
         if ( items.length > 1 ){
             console.log('object collision');
+            var headHits = [];
+            var bodyHits = [];
+            _.each( items, function( item ){
+                if ( item instanceof Snake ) {
+                    if ( that.key(item.body[0]) == coord ) {
+                        headHits.push(item);
+                    } else {
+                        bodyHits.push(item);
+                    }
+                }
+            });
+            if ( headHits.length > 0 && bodyHits.length > 0 ){
+                _.each( headHits, function(headHit){
+                    headHit.die( STATE.DEATH_BY_SNAKE );
+                });
+            }
         }
     });
 };
@@ -110,6 +126,14 @@ var babyIndex = 0;
 // Snake
 var Snake = function(){
     this.createdAt = Date.now();
+};
+
+Snake.prototype.die = function( method ) {
+console.log('die');
+    if( !this.diedAt ) {
+        this.state = method;
+        this.diedAt = Date.now();
+    }
 };
 
 Snake.prototype.setNickname = function( nickname ) {
@@ -165,6 +189,10 @@ Snake.prototype.moveToStart = function() {
     this.resetDirection();
 };
 
+Snake.prototype.died = function() {
+    return this.state == STATE.DEATH_BY_BOUNDARY || this.state == STATE.DEATH_BY_SNAKE;
+};
+
 // send system state
 setInterval( function() {
     var start = Date.now();
@@ -177,7 +205,7 @@ setInterval( function() {
         if( snake.state == STATE.BABY && (Date.now() - snake.createdAt) > BABY_TIME) {
             snake.setState(STATE.ALIVE);
         }
-        if( snake.state == STATE.DEATH_BY_BOUNDARY && (Date.now() - snake.diedAt) > DEATH_TIME) {
+        if( snake.died() && (Date.now() - snake.diedAt) > DEATH_TIME) {
             snake.createdAt = Date.now();
             delete snake.diedAt;
             snake.state = STATE.BABY;
