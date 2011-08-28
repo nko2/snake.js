@@ -38,6 +38,7 @@
             // draw one snake
             var drawOneSnake = function(snake){
                 var snakeColor = {"#C00": "#ee0000", "#0C0": "#00ee00", "#00C":"#0000ee"};
+                var nameStart = 5;
                 $(snake.body).each(function(index, block){
                     if(index == 0){
                         context.fillStyle = snake.color;
@@ -45,13 +46,24 @@
                         
                         //context.fillRect(10*block[posX]-0.5, 10*block[posY]-0.5, 10, 10);
                         //context.fillStyle = "#fff";
-                        context.font         = '9px sans-serif';
+                        //context.font         = '9px sans-serif';
+                        context.font         = '9px silkscreen';
                         context.textBaseline = 'top';
-                        context.fillText  ('C', 10*block[posX], 10*block[posY]);                       
-                        
-                    }else{
-                        context.fillStyle = snakeColor[snake.color];
+                        //context.fillText  ('C', 10*block[posX], 10*block[posY]);                       
                         drawBlock(10*block[posX], 10*block[posY]);
+                    }else{
+                        if(index < nameStart || index >= (snake.nickname.length+nameStart)){
+                            context.fillStyle = snakeColor[snake.color];
+                            drawBlock(10*block[posX], 10*block[posY]);
+                        } else {
+                            context.fillStyle = snakeColor[snake.color];
+                            var tempName = snake.nickname;
+                            if(snake.direction == 'down' || snake.direction == 'right'){
+                                context.fillText  (tempName[snake.nickname.length-(index-nameStart)-1], 10*block[posX], 10*block[posY]);                       
+                            } else {
+                                context.fillText  (tempName[index-nameStart], 10*block[posX], 10*block[posY]);                       
+                            }
+                        }
                     }
                 });
             }
