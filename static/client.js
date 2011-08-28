@@ -154,7 +154,7 @@
                         }else if(type == "deathBySnake"){
                             $('<img />').attr("src", "/snake_v2.png").appendTo(events);
                         }
-                        $('<span />').attr("class", "test").html(snake.action.message).appendTo(events);
+                        $('<div />').attr("class", "msgtext").html(snake.action.message).appendTo(events);
                     }
                     if(snake.score){
                         var displayScore = ''+snake.score;
@@ -205,8 +205,13 @@ var globalStats = {
 };
 */
                 socket.on('globalStats', function(globalStats){
-                    var html = 'globaldata' + globalStats.playersConnected;
-                    $('#globalStats').html(html);
+                    var globalStat = $('#globalStats').html("");
+                    $("<span class='stat'/>").html("snakes_Spawned: " + globalStats.snakesSpawned).appendTo(globalStat);
+                    $("<span class='stat'/>").html("cherries_Eaten: " + globalStats.cherriesEaten).appendTo(globalStat);
+                    $("<span class='stat'/>").html("players_Connected: " + globalStats.playersConnected).appendTo(globalStat);
+                    $("<br/>").appendTo(globalStat);
+                    $("<span class='stat'/>").html("longest_Snake_Length: " + globalStats.longestSnakeLength).appendTo(globalStat);
+                    $("<span class='stat'/>").html("longest_Snake_Name: " + globalStats.longestSnakeName).appendTo(globalStat);
                 });
 
                 $('.outgoing .chatBox').keyup(function(event){

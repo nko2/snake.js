@@ -285,6 +285,8 @@ body{
     background:url(/light.png);
     font-family: silkscreen, Tahoma;
     }
+#globalStats {font-size: 11px; position:absolute; top:40px; left:450px;/*color:#FF3399*/}
+#globalStats span {padding: 0 10px;}
 #playground {
     width:800px;height:600px;
     float:left;
@@ -309,13 +311,14 @@ body{
     padding:5px 10px;
     }
 .hide {display:none;}
-.events img{margin: -150px 0 0 -20px;}
+.events img{margin: -50px 0 0 -20px; height:160px; width:240px;}
+.events .msgtext {min-height:30px;}
 .scoreboard {text-align:right;}
 #score {font-size:70px; color:#333;}
 .messages {padding: 5px; border:1px solid #efefef;-webkit-border-radius:5px;-webkit-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 2px 10px;}
 .messages .incoming div {padding:5px 0;}
 .messages .incoming {height:200px; overflow-y:auto;}
-.incoming .msgs { border-top: 1px solid #000;}
+.incoming .msgs { border-bottom: 1px dashed #666;}
 .messages .incoming span {vertical-align:top;}
 .messages .outgoing .chatBox{
     border-color: beige;
@@ -329,11 +332,12 @@ body{
 .profile {padding:10px 0;}
 </style>
 <body>
+<div id="globalStats"></div>
 <div id="header">Snake.js</div>
 <div id="playground">
     <canvas id="canvas" width="800px" height="600px"></canvas></div>
 <div id="panel">
-    <div class='events normal'><img src="/normal_v2.png"/></div>
+    <div class='events'><img src="/normal_v2.png"/><div class="msgtext"> </div></div>
     <div class="scoreboard"><span id="score">0000</span><span>pts</span></div>
     <div class="profile"><input size="10" type="text" class="nickname"></input><span class="color"></span></div> 
     <div class="messages">
