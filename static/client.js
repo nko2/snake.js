@@ -195,15 +195,15 @@
                    $('.profile .nickname').attr('value', newName); 
                 });
 
-/*
-var globalStats = {
-    snakesSpawned : 0,
-    cherriesEaten : 0,
-    playersConnected : 0,
-    longestSnakeLength : 0,
-    longestSnakeName : ''
-};
-*/
+                /*
+                var globalStats = {
+                    snakesSpawned : 0,
+                    cherriesEaten : 0,
+                    playersConnected : 0,
+                    longestSnakeLength : 0,
+                    longestSnakeName : ''
+                };
+                */
                 socket.on('globalStats', function(globalStats){
                     var globalStat = $('#globalStats').html("");
                     $("<span class='stat'/>").html("total_snakes_born: " + globalStats.snakesSpawned).appendTo(globalStat);
@@ -226,7 +226,13 @@ var globalStats = {
                         $(this).attr('value', '');
                     }
                 });
+
+                // welcome message
                 var messageArea = $('.messages .incoming');
+                var con = $('<div class="msgs"></div>');
+                $('<span class="from"></span>').appendTo(con);
+                $('<span class="msg"></span>').append("Welcome! Use arrow keys (&larr;&rarr;&uarr;&darr;) to control your snake.").appendTo(con);
+                messageArea.append(con);
                 socket.on('message', function(msg){
                     var con = $('<div class="msgs"></div>');
                     $('<span class="from"></span>').append(msg.from).append(": ").appendTo(con);
