@@ -22,7 +22,7 @@ body{
     padding: 10px;
     background: whiteSmoke none;
     }
-#scoreboard {
+#panel {
     margin:20px 0 20px 820px;
     height:560px;
     padding:5px 20px;
@@ -39,8 +39,20 @@ body{
 <div id="header">Snake.js</div>
 <div id="playground">
     <canvas id="canvas" width="800px" height="600px"></canvas></div>
-<div id="scoreboard">
+<div id="panel">
+    <div class="scoreboard">
     <h1>Score board</h1>
+    <ul><li>snake name: </li>
+        <li>score: </li>
+        <li>death: </li>
+    </ul>
+    <div><img src="/apple.png"/><br/>You just ate an apple!</div>
+    </div>
+    <div class="messages">
+        <h1>Messages</h1>
+        <div class="incoming"></div>
+        <div class="outgoing"></div>
+    </div>
 </div>
 <div id="footer">footer</div>
 </body>
