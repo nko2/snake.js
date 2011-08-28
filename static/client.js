@@ -136,7 +136,7 @@
                         var type = snake.action.type;
                         events.html("");
                         if(type == "cherry"){
-                            $('<img />').attr("src", "/cherry.png").appendTo(events);
+                            $('<img />').attr("src", "/cherry_v2.png").appendTo(events);
                         }else if(type == "deathByBoundary"){
                             $('<img />').attr("src", "/wall.png").appendTo(events);
                         }else if(type == "deathBySnake"){
