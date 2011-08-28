@@ -81,6 +81,8 @@
                 _.each(cherries, function(cherry){
                     drawOneCherry(cherry);
                     //drawOneBomb(cherry);
+                    // don't use star yet, still figuring out how to draw it correctly
+                    //drawOneStar(cherry);
                 });
             };
 
@@ -97,6 +99,27 @@
                 context.lineTo(x+6, y+2);
                 context.stroke();
             };
+
+            var drawOneStar = function(cherry){
+                var star = cherry;
+                context.fillStyle = "yellow";
+                context.translate(10*star.coord[0], 10*star.coord[1]);
+                context.save();
+                context.beginPath();
+                r = 10;
+                context.moveTo(r, 0);
+                for(var i = 0; i < 9 ; i++){
+                    context.rotate(Math.PI/5);
+                    if(i % 2 == 0){
+                        context.lineTo((r/0.525731)*0.200811, 0);
+                    } else {
+                        context.lineTo(r, 0);
+                    }
+                }
+                context.closePath();
+                context.fill();
+                context.restore();
+            }
             // connect
             var socket = io.connect("/");
             socket.on('game state', function(data){

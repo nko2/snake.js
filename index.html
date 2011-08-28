@@ -2,6 +2,14 @@
 <head>
 <title>snake</title>
 <style>
+@font-face {
+    font-family: silkscreen;
+    src: url(/slkscr.ttf);
+}
+@font-face {
+    font-family: silkscreen-e;
+    src: url(/slkscre.ttf);
+}
 body{
     font-family:Tahoma, Geneva, sans-serif;
 	font-size:12px;
@@ -10,9 +18,10 @@ body{
     background: url(/bg.jpg);
 	}
 #header {
-    width:800px;height:100px;
+    width:800px;height:80px;
     line-height:100px;font-size:55px;
     background:url(/light.png);
+    font-family: silkscreen, Tahoma;
     }
 #playground {
     width:800px;height:600px;
@@ -30,7 +39,8 @@ body{
     -webkit-border-radius:0 5px 5px 0;
     -webkit-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 2px 10px;
     }
-#panel li {list-style:none}
+#panel h1 {font-family:silkscreen-e; text-decoration:underline;}
+#panel li,ul {list-style:none; padding-left:0;}
 #footer {
     clear:both;
     height:50px;
@@ -48,14 +58,14 @@ body{
     <div class='events hide'><img src="/wall.png"/><br/>You die of hitting the wall!</div>
     <div class='events hide'><img src="/snake.png"/><br/>You die of hitting another snake!</div>
     <div class="scoreboard">
-        <h1>Score board</h1>
+        <h1>[Score board]</h1>
         <ul><li>snake name: </li>
             <li>score: </li>
             <li>death: </li>
         </ul>
     </div>
     <div class="messages">
-        <h1>Messages</h1>
+        <h1>[Messages]</h1>
         <div class="incoming"></div>
         <div class="outgoing"></div>
     </div>
