@@ -95,16 +95,15 @@ Map.prototype.simulate = function() {
         var x = +coord[0];
         var y = +coord[1];
         if ( x < X.MIN || y < Y.MIN || x >= X.LENGTH || y >= Y.LENGTH ) {
-            console.log('wall collision');
+            //console.log('wall collision');
             _.each( items, function( item ){
                 if ( item instanceof Snake ) {
                     item.die( STATE.DEATH_BY_BOUNDARY );
-                    console.log(item);
                 }
             });
         }
         if ( items.length > 1 ){
-            console.log('object collision');
+            //console.log('object collision');
             var headHits = [];
             var bodyHits = [];
             var cherryHits = [];
