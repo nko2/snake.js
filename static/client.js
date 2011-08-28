@@ -138,9 +138,9 @@
                         if(type == "cherry"){
                             $('<img />').attr("src", "/cherry_v2.png").appendTo(events);
                         }else if(type == "deathByBoundary"){
-                            $('<img />').attr("src", "/wall.png").appendTo(events);
+                            $('<img />').attr("src", "/wall_v2.png").appendTo(events);
                         }else if(type == "deathBySnake"){
-                            $('<img />').attr("src", "/snake.png").appendTo(events);
+                            $('<img />').attr("src", "/snake_v2.png").appendTo(events);
                         }
                         $('<span />').attr("class", "test").html(snake.action.message).appendTo(events);
                     }
