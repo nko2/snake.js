@@ -179,6 +179,11 @@
                     $('<span class="from"></span>').append(msg.from).append(": ").appendTo(con);
                     $('<span class="msg"></span>').append(msg.message).appendTo(con);
                     messageArea.append(con);
+                    $('.incoming').each( function() 
+                    {
+                       var scrollHeight = Math.max(this.scrollHeight, this.clientHeight);
+                       this.scrollTop = scrollHeight - this.clientHeight;
+                    });
                 });
 
             });
