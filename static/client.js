@@ -80,9 +80,23 @@
             var drawCherries = function(cherries){
                 _.each(cherries, function(cherry){
                     drawOneCherry(cherry);
+                    //drawOneBomb(cherry);
                 });
             };
 
+            var drawOneBomb = function(cherry){
+                var x = 10*cherry.coord[0], y = 10*cherry.coord[1];
+                context.strokeStyle = "black";
+                context.beginPath();
+                context.arc(x+4, y+5, 4, 0, Math.PI*2, false);
+                context.closePath();
+                context.stroke();
+                context.fillStyle = "#000";
+                context.fill();
+                context.moveTo(x+7, y-2);
+                context.lineTo(x+6, y+2);
+                context.stroke();
+            };
             // connect
             var socket = io.connect("/");
             socket.on('game state', function(data){

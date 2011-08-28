@@ -30,24 +30,29 @@ body{
     -webkit-border-radius:0 5px 5px 0;
     -webkit-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 2px 10px;
     }
+#panel li {list-style:none}
 #footer {
     clear:both;
     height:50px;
     padding:5px 10px;
     }
+.hide {display:none;}
+.events img{margin: -150px 0 0 -20px;}
 </style>
 <body>
 <div id="header">Snake.js</div>
 <div id="playground">
     <canvas id="canvas" width="800px" height="600px"></canvas></div>
 <div id="panel">
+    <div class='events'><img src="/cherry.png"/><br/>You just ate an apple!</div>
+    <div class='events hide'><img src="/wall.png"/><br/>You die of hitting the wall!</div>
+    <div class='events hide'><img src="/snake.png"/><br/>You die of hitting another snake!</div>
     <div class="scoreboard">
-    <h1>Score board</h1>
-    <ul><li>snake name: </li>
-        <li>score: </li>
-        <li>death: </li>
-    </ul>
-    <div><img src="/apple.png"/><br/>You just ate an apple!</div>
+        <h1>Score board</h1>
+        <ul><li>snake name: </li>
+            <li>score: </li>
+            <li>death: </li>
+        </ul>
     </div>
     <div class="messages">
         <h1>Messages</h1>
