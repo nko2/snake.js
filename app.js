@@ -370,12 +370,13 @@ io.sockets.on('connection', function (socket) {
 
     //api: socket.emit('set nickname', {nickname: 'bot'});
     socket.on('set nickname', function (data) {
-        game.snakes[socket.id].setNickname( data.nickname );
+        game.snakes[socket.id].setNickname( sanitize(data.nickname).xss() );
         socket.emit('set nickname', game.snakes[socket.id].nickname);
     });
 
     //api: socket.emit('set direction', {direction: 'up', 'down', 'left', 'right'});
     socket.on('set direction', function (data) {
+        data.direction = sanitize(data.direction).xss();
         if( _.contains( VALID_DIRECTIONS, data.direction )) {
             game.snakes[socket.id].setDirection( data.direction );
         }
@@ -386,7 +387,7 @@ io.sockets.on('connection', function (socket) {
             var message = {
                 from : game.snakes[socket.id].nickname,
                 ts : Date.now(),
-                message : data.message 
+                message : sanitize(data.message).xss() 
             };
             _.each( io.sockets.sockets, function( socket ) {
                 socket.emit('message', message);
