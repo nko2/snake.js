@@ -366,5 +366,32 @@ body{
 </html>
 <script src="/jquery-1.6.2.min.js"></script>
 <script src="/underscore.min.js"></script>
+<script src="/sm/script/soundmanager2-nodebug-jsmin.js"></script>
+<script>
+soundManager.url = '/sm/swf/';
+soundManager.flashVersion = 9;
+soundManager.useFlashBlock = false;
+soundManager.snakeSounds = {};
+soundManager.onready(function() {
+    var sounds = ['crash', 'cherry'];
+    _.each(sounds, function(sound){
+        var playable = soundManager.createSound({
+          id: sound,
+          url: '/sounds/' + sound + '.mp3',
+          autoLoad: true,
+          autoPlay: false,
+          volume: 50
+        });
+        soundManager.snakeSounds[sound] = playable;;
+    });
+    soundManager.snakeSounds['deathByBoundary'] = soundManager.snakeSounds['crash'];
+    soundManager.snakeSounds['deathBySnake'] = soundManager.snakeSounds['crash'];
+});
+soundManager.snakePlay = function( sound ){
+    if(this.snakeSounds[sound]){
+        this.snakeSounds[sound].play();
+    }
+};
+</script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/client.js"></script>

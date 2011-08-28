@@ -140,7 +140,8 @@ Map.prototype.simulate = function() {
 };
 
 // Snake
-var Snake = function(){
+var Snake = function(id){
+    this.id = id;
     this.createdAt = Date.now();
     this.food = 0;
     this.score = 0;
@@ -360,7 +361,7 @@ io.set('transports', [
   ]);
 io.sockets.on('connection', function (socket) {
 
-    var snake = new Snake();
+    var snake = new Snake(socket.id);
     snake.setNickname( DEFAULT_NAMES[+socket.id.substring(0, 10) % DEFAULT_NAMES.length] );
     snake.setColor( DEFAULT_COLORS[+socket.id.substring(0, 10) % DEFAULT_COLORS.length] );
     snake.setState( STATE.BABY );

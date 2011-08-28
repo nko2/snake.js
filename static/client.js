@@ -57,7 +57,11 @@
             }
             // draw/update snakes
             var drawSnakes = function(snakes){
+                var mySnake;
                 _.each(snakes, function(snake){
+                if(snake.id == SNAKE_ID){
+                    mySnake = snake;
+                }
                 if(snake.state === "baby"){
                     //console.log("snake: " + snake.nickname + " was borned!");
                 }else if(snake.state === "alive"){
@@ -68,6 +72,7 @@
                 }
                     drawOneSnake(snake);
                 });
+                return mySnake;
             }
         
             var drawOneCherry = function(cherry){
@@ -120,15 +125,27 @@
                 context.fill();
                 context.restore();
             }
+    
+            var drawMySnake = function(snake){
+                //draw action panel
+                if(snake && snake.action){
+                    if(soundManager && soundManager.snakePlay){
+                        soundManager.snakePlay(snake.action.type);
+                    }
+                }
+            };
+
             // connect
             socket = io.connect("/");
             socket.on('game state', function(data){
                 //console.log(data.snakes);
                 clearMap();
-                drawSnakes(data.snakes);
+                var mySnake = drawSnakes(data.snakes);
                 drawCherries(data.cherries);
+                drawMySnake(mySnake);
             });
             socket.on('connected', function(snake){
+                SNAKE_ID = snake.id;
                 $('.profile .nickname')
                     .attr('value', snake.nickname)
                     .blur(function(){
