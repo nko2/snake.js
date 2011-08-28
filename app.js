@@ -32,7 +32,7 @@ var DEFAULT_NAMES = ['Sneezy', 'Sleepy', 'Dopey', 'Doc', 'Happy', 'Bashful', 'Gr
 var DEFAULT_COLORS = ['#C00', '#0C0', '#00C'];
 var X = { MIN : 0, LENGTH : 80 };
 var Y = { MIN : 0, LENGTH : 60 };
-var FRAME_LENGTH = 500; //ms
+var FRAME_LENGTH = 150; //ms
 var STATE = { ALIVE : 'alive', DEATH_BY_BOUNDARY : 'deathByBoundary', DEATH_BY_SNAKE : 'deathBySnake', BABY : 'baby' };
 var FOOD = { CHERRY : 'cherry' };
 

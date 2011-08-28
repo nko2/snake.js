@@ -310,6 +310,8 @@ body{
     }
 .hide {display:none;}
 .events img{margin: -150px 0 0 -20px;}
+.scoreboard {text-align:right;}
+#score {font-size:70px; color:#333;}
 .messages {padding: 5px; border:1px solid #efefef;-webkit-border-radius:5px;-webkit-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 2px 10px;}
 .messages .incoming div {padding:5px 0;}
 .messages .incoming {height:200px; overflow-y:auto;}
@@ -331,15 +333,8 @@ body{
 <div id="playground">
     <canvas id="canvas" width="800px" height="600px"></canvas></div>
 <div id="panel">
-    <div class='events'><img src="/cherry.png"/><br/>You just ate an apple!</div>
-    <div class='events hide'><img src="/wall.png"/><br/>You die of hitting the wall!</div>
-    <div class='events hide'><img src="/snake.png"/><br/>You die of hitting another snake!</div>
-    <div class="scoreboard">
-        <h1>[Score board]</h1>
-            <li>score: </li>
-            <li>death: </li>
-        </ul>
-    </div>
+    <div class='events normal'><img src="/normal.png"/></div>
+    <div class="scoreboard"><span id="score">0000</span><span>pts</span></div>
     <div class="profile"><input size="10" type="text" class="nickname"></input><span class="color"></span></div> 
     <div class="messages">
         <div class="incoming">

@@ -126,11 +126,34 @@
                 context.restore();
             }
     
+            var events = $("#panel .events");
+            var score = $("#score");
             var drawMySnake = function(snake){
                 //draw action panel
                 if(snake && snake.action){
                     if(soundManager && soundManager.snakePlay){
                         soundManager.snakePlay(snake.action.type);
+                        var type = snake.action.type;
+                        events.html("");
+                        if(type == "cherry"){
+                            $('<img />').attr("src", "/cherry.png").appendTo(events);
+                        }else if(type == "deathByBoundary"){
+                            $('<img />').attr("src", "/wall.png").appendTo(events);
+                        }else if(type == "deathBySnake"){
+                            $('<img />').attr("src", "/snake.png").appendTo(events);
+                        }
+                        $('<span />').attr("class", "test").html(snake.action.message).appendTo(events);
+                    }
+                    if(snake.score){
+                        var displayScore = ''+snake.score;
+                        if(displayScore.length == 1){
+                            displayScore = '000' + displayScore;
+                        } else if(displayScore.length == 2){
+                            displayScore = '00' + displayScore;
+                        } else if(displayScore.length == 3){
+                            displayScore = '0' + displayScore;
+                        }
+                        score.html(displayScore);    
                     }
                 }
             };
