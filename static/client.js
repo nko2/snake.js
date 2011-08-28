@@ -12,23 +12,13 @@
             var drawBlock = function(x, y){
                 context.fillRect(x, y, 9, 9);
             }
-            /*
-            var snakeLogo = (function(){
-                var headerCanvas = $("#header")[0];
-                var headerContext = headerCanvas.getContext('2d');
-                var x, y;
-                headerContext.fillStyle = "#ccc";
-                for(x = 0; x < 110; x++){
-                    for(y = 0; y < 10; y++){
-                        headerContext.fillRect(10*x, 10*y, 9, 9);
-                    }
-                }
-            })();*/
             
             // draw the default gray playground 
             var clearMap = function(){
                 var x, y;
-                context.fillStyle = "#dedede";
+                context.fillStyle = "#fff";
+                context.fillRect(0, 0, 800, 600);
+                context.fillStyle = "#efefef";
                 for(x = 0; x < canvasBlocks.X_MAXLENGTH; x++){
                     for(y = 0; y < canvasBlocks.Y_MAXLENGTH; y++){
                         drawBlock(10*x, 10*y);
@@ -47,27 +37,44 @@
 
             // draw one snake
             var drawOneSnake = function(snake){
-                context.fillStyle = snake.color;
-                if(snake.state === "baby"){
-                    $(snake.body).each(function(index, block){
+                var snakeColor = {"#C00": "#ee0000", "#0C0": "#00ee00", "#00C":"#0000ee"};
+                $(snake.body).each(function(index, block){
+                    if(index == 0){
+                        context.fillStyle = snake.color;
                         drawBlock(10*block[posX], 10*block[posY]);
-                    });
-                }else if(snake.state === "alive"){
-                    $(snake.body).each(function(index, block){
+                        /*
+                        //context.fillRect(10*block[posX]-0.5, 10*block[posY]-0.5, 10, 10);
+                        context.fillStyle = "#fff";
+                        context.font         = '9px sans-serif';
+                        context.textBaseline = 'top';
+                        context.fillText  ('C', 10*block[posX], 10*block[posY]);                       
+                        */
+                    }else{
+                        context.fillStyle = snakeColor[snake.color];
                         drawBlock(10*block[posX], 10*block[posY]);
-                    });
-                }
+                    }
+                });
             }
             // draw/update snakes
             var drawSnakes = function(snakes){
                 _.each(snakes, function(snake){
+                if(snake.state === "baby"){
+                    //console.log("snake: " + snake.nickname + " was borned!");
+                }else if(snake.state === "alive"){
+                }else if(snake.state === "deathBySnake"){
+                    console.log("snake: " + snake.nickname + "died of hitting another snake");
+                }else if(snake.state ===" deathByBoundary"){
+                    console.log("snake: " + snake.nickname + " died of hitting the wall.");
+                }
                     drawOneSnake(snake);
                 });
             }
         
             var drawOneCherry = function(cherry){
-                context.fillStyle = '#8B0000';
+                context.fillStyle = '#AB0000';
                 drawBlock(10*cherry.coord[0], 10*cherry.coord[1]);
+                context.fillStyle = '#0A0';
+                context.fillRect(10*cherry.coord[posX] + 4, 10*cherry.coord[posY] - 3, 2, 3);
             };
 
             var drawCherries = function(cherries){
@@ -79,10 +86,16 @@
             // connect
             var socket = io.connect("/");
             socket.on('game state', function(data){
-                //console.log(data);
+                //console.log(data.snakes);
                 clearMap();
                 drawSnakes(data.snakes);
                 drawCherries(data.cherries);
+            });
+            socket.on('death by snakes', function(snake){
+                console.log("snake died of hitting other snakes.");
+            });
+            socket.on('death by boundary', function(snake){
+                console.log(snake);
             });
             // key events
             $(document).keydown(function(event){

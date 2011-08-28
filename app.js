@@ -99,6 +99,7 @@ Map.prototype.simulate = function() {
             _.each( items, function( item ){
                 if ( item instanceof Snake ) {
                     item.die( STATE.DEATH_BY_BOUNDARY );
+                    console.log(item);
                 }
             });
         }
