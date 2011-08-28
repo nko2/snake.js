@@ -159,7 +159,9 @@ Snake.prototype.eat = function( item ) {
     }
 };
 Snake.prototype.setNickname = function( nickname ) {
-    this.nickname = nickname.substring(0, 9);
+    if( _.isString(nickname) && nickname.length > 0 ){
+        this.nickname = nickname.substring(0, 9);
+    }
 };
 Snake.prototype.setColor = function( color ) {
     this.color = color;
@@ -312,7 +314,7 @@ setInterval( function() {
         }
     });
 
-    util.log(util.inspect(game.snakes));
+    //util.log(util.inspect(game.snakes));
 
     // add cherries to map
     _.each(game.cherries, function(cherry){
@@ -368,6 +370,7 @@ io.sockets.on('connection', function (socket) {
     //api: socket.emit('set nickname', {nickname: 'bot'});
     socket.on('set nickname', function (data) {
         game.snakes[socket.id].setNickname( data.nickname );
+        socket.emit('set nickname', game.snakes[socket.id].nickname);
     });
 
     //api: socket.emit('set direction', {direction: 'up', 'down', 'left', 'right'});
@@ -376,6 +379,20 @@ io.sockets.on('connection', function (socket) {
             game.snakes[socket.id].setDirection( data.direction );
         }
     });
+
+    socket.on('message', function (data) {
+        if( data && data.message && game.snakes[socket.id] && game.snakes[socket.id].nickname ) {
+            var message = {
+                from : game.snakes[socket.id].nickname,
+                ts : Date.now(),
+                message : data.message 
+            };
+            _.each( io.sockets.sockets, function( socket ) {
+                socket.emit('message', message);
+            });
+        }
+    });
+
     socket.on('disconnect', function () {
         delete game.snakes[socket.id];
     });
