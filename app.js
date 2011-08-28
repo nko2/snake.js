@@ -195,14 +195,8 @@ setInterval( function() {
     });
 
     map.simulate();
-/*
-console.log('snakes');
-    util.log(util.inspect(game.snakes, false, 3));
-console.log('map');
-    util.log(util.inspect(map, false, 3));
-*/
 
-    console.log( 'Frame took ' + (Date.now() - start) + 'ms to compute' );
+    //console.log( 'Frame took ' + (Date.now() - start) + 'ms to compute' );
     // send to all the users
     _.each( io.sockets.sockets, function( socket ) {
         socket.emit('game state', game);
@@ -231,6 +225,9 @@ io.sockets.on('connection', function (socket) {
         if( _.contains( VALID_DIRECTIONS, data.direction )) {
             game.snakes[socket.id].setDirection( data.direction );
         }
+    });
+    socket.on('disconnect', function () {
+        delete game.snakes[socket.id];
     });
 
 });
