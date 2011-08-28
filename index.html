@@ -331,6 +331,13 @@ body{
     }
 .hide {display:none;}
 .events img{margin: -150px 0 0 -20px;}
+.messages .incoming div {padding:5px 0;}
+.messages .incoming {height:200px; overflow-y:auto;}
+.messages .incoming span {vertical-align:top;}
+.messages .outgoing .chatBox{background: beige;font-family: silkscreen;font-size: 14px;}
+.profile .color {background-color:green; display:inline-block; width:10px; height:10px;}
+.profile .nickname {font-size: 22px;font-family: silkscreen;background:transparent;}
+.profile * {padding:5px 0; margin-right:5px;}
 </style>
 <body>
 <div id="header">Snake.js</div>
@@ -341,16 +348,17 @@ body{
     <div class='events hide'><img src="/wall.png"/><br/>You die of hitting the wall!</div>
     <div class='events hide'><img src="/snake.png"/><br/>You die of hitting another snake!</div>
     <div class="scoreboard">
-        <h1>Score board</h1>
-        <ul><li>snake name: </li>
+        <h1>[Score board]</h1>
             <li>score: </li>
             <li>death: </li>
         </ul>
     </div>
     <div class="messages">
-        <h1>Messages</h1>
-        <div class="incoming"></div>
-        <div class="outgoing"></div>
+        <div class="profile"><input size="10" type="text" class="nickname"></input><span class="color">color</span></div> 
+        <div class="incoming">
+            <div class="msg"><img class="icon"  width="20px" height="20px"><span>some one just hit the wall.</span></div>
+        </div>
+        <div class="outgoing"><textArea type="text" size="140" class="chatBox" width="240px"></textArea></div>
     </div>
 </div>
 <div id="footer">footer</div>

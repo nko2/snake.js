@@ -41,14 +41,14 @@
                 $(snake.body).each(function(index, block){
                     if(index == 0){
                         context.fillStyle = snake.color;
-                        drawBlock(10*block[posX], 10*block[posY]);
-                        /*
+                        //drawBlock(10*block[posX], 10*block[posY]);
+                        
                         //context.fillRect(10*block[posX]-0.5, 10*block[posY]-0.5, 10, 10);
-                        context.fillStyle = "#fff";
+                        //context.fillStyle = "#fff";
                         context.font         = '9px sans-serif';
                         context.textBaseline = 'top';
                         context.fillText  ('C', 10*block[posX], 10*block[posY]);                       
-                        */
+                        
                     }else{
                         context.fillStyle = snakeColor[snake.color];
                         drawBlock(10*block[posX], 10*block[posY]);
@@ -128,26 +128,51 @@
                 drawSnakes(data.snakes);
                 drawCherries(data.cherries);
             });
-            socket.on('death by snakes', function(snake){
-                console.log("snake died of hitting other snakes.");
-            });
-            socket.on('death by boundary', function(snake){
-                console.log(snake);
+            socket.on('connected', function(snake){
+                $('.profile .nickname')
+                    .attr('value', snake.nickname)
+                    .blur(function(){
+                        var newName = $(this).attr('value');
+                        if(newName !== ""){
+                            socket.emit('set nickname', {nickname:newName});
+                        }
+                    });
+                socket.on('set nickname', function(newName){
+                   console.log("i've got a new name!" + newName);
+                   $('.profile .nickname').attr('value', newName); 
+                });
+
+                $('.outgoing .chatBox').keyup(function(event){
+                    if(event.keyCode == 13){
+                        console.log('enter pressed');
+                        socket.emit('message', {message: $(this).attr('value')});
+                        $(this).attr('value', '');
+                    }
+                });
+                var messageArea = $('.messages .incoming');
+                socket.on('message', function(msg){
+                    console.log(msg);
+                });
+
             });
             // key events
             $(document).keydown(function(event){
                 var keycode = event.keyCode?event.keyCode: event.which;
                 switch(keycode){
                     case 37: 
+                        event.preventDefault();
                         socket.emit('set direction', {direction:'left'});
                         break;
                     case 38: 
+                        event.preventDefault();
                         socket.emit('set direction', {direction:'up'});
                         break;
                     case 39: 
+                        event.preventDefault();
                         socket.emit('set direction', {direction:'right'});
                         break;
                     case 40: 
+                        event.preventDefault();
                         socket.emit('set direction', {direction:'down'});
                         break;
                 }

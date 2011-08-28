@@ -367,6 +367,8 @@ io.sockets.on('connection', function (socket) {
     snake.moveToStart();
 
     game.snakes[socket.id] = snake;
+    
+    socket.emit('connected', snake);
 
     //api: socket.emit('set nickname', {nickname: 'bot'});
     socket.on('set nickname', function (data) {
