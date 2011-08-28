@@ -30,19 +30,25 @@
             }
             // draw/update snakes
             var drawSnakes = function(snakes){
-                $(snakes).each(function(index, snake){ drawOneSnake(snake);});
+                //$(snakes).each(function(index, snake){ drawOneSnake(snake);});
+                _.each(snakes, function(snake){
+                    drawOneSnake(snake);
+                });
             }
             // connect
             var socket = io.connect("/");
             socket.on('game state', function(data){
                 console.log(data);
+                drawSnakes(data.snakes);
                 //updateMap(data.walls);
             });
             
+/*
             var snakeSample1 = {id:"1", color:"red", head: [50, 50], body:[[51,50],[52,50], [53,50]], name:"mindy", state:"alive"}; 
             var snakeSample2 = {id:"2", color:"blue", head:[60, 60], body:[[61,50],[62,50]], name:"charlie", state:"alive"}; 
             var snakes = [snakeSample1, snakeSample2];
             drawSnakes(snakes);
+*/
             // key events
             $(document).keydown(function(event){
                 var keycode = event.keyCode?event.keyCode: event.which;

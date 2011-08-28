@@ -26,11 +26,12 @@ app.get('/', function (req, res) {
 
 // game globals
 var VALID_DIRECTIONS = ['up', 'down', 'left', 'right'];
+var OPPOSITE_DIRECTIONS = { 'up' : 'down', 'down' : 'up', 'left' : 'right', 'right' : 'left' };
 var DEFAULT_NAMES = ['Sneezy', 'Sleepy', 'Dopey', 'Doc', 'Happy', 'Bashful', 'Grumpy'];
 var DEFAULT_COLORS = ['#C00', '#0C0', '#00C'];
 var X = { MIN : 0, LENGTH : 80 };
 var Y = { MIN : 0, LENGTH : 60 };
-var FRAME_LENGTH = 500; //ms
+var FRAME_LENGTH = 150; //ms
 var STATE = { ALIVE : 'alive', DEAD : 'dead', BABY : 'baby' };
 var MAX_BABY = 10;
 var BABY_LENGTH = 3;
@@ -83,21 +84,49 @@ Snake.prototype.setState = function( state ) {
 };
 
 Snake.prototype.setDirection = function( direction ) {
-    this.direction = direction;
+    if ( OPPOSITE_DIRECTIONS[direction] !== this.direction ) {
+        this.direction = direction;
+    }
+};
+
+Snake.prototype.move = function() {
+    var newX = this.body[0][0];
+    var newY = this.body[0][1];
+    if ( this.direction == 'up' ) {
+        --newY;
+    } else if ( this.direction == 'down' ) {
+        ++newY;
+    } else if ( this.direction == 'left' ) {
+        --newX;
+    } else {
+        ++newX;
+    }
+    this.body.pop();
+    this.body.unshift([newX, newY]);
 };
 
 
 // send system state
 setInterval( function() {
+    var start = Date.now();
     game.frame += 1;
     game.ts = Date.now();
 
-    _.each(game.snakes, function( v ) {
-        if( v.state == STATE.BABY && (Date.now() - v.createdAt) > BABY_TIME) {
-            v.setState(STATE.ALIVE);
+    // compute collisions
+
+    // compute new state
+    _.each(game.snakes, function( snake ) {
+        //new snakes
+        if( snake.state == STATE.BABY && (Date.now() - snake.createdAt) > BABY_TIME) {
+            snake.setState(STATE.ALIVE);
         }
+
+        //move snakes
+        snake.move();
+        
     });
 
+    console.log( 'Frame took ' + (Date.now() - start) + 'ms to compute' );
     // send to all the users
     _.each( io.sockets.sockets, function( socket ) {
         socket.emit('game state', game);
@@ -131,13 +160,9 @@ io.sockets.on('connection', function (socket) {
     socket.on('set direction', function (data) {
         if( _.contains( VALID_DIRECTIONS, data.direction )) {
             game.snakes[socket.id].setDirection( data.direction );
-        } else {
-            socket.emit('set direction fail');
         }
     });
 
-    socket.emit('news', { hello: 'world' });
 });
-
 
 console.log('Listening on ' + app.address().port);
