@@ -307,6 +307,13 @@ setInterval( function() {
 
 // socket logic
 io.set('log level', 1);
+io.set('transports', [
+    //'websocket'
+  'flashsocket'
+  , 'htmlfile'
+  , 'xhr-polling'
+  , 'jsonp-polling'
+  ]);
 io.sockets.on('connection', function (socket) {
 
     var snake = new Snake();
