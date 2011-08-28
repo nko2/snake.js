@@ -3,23 +3,45 @@
 <title>snake</title>
 <style>
 body{
+    font-family:Tahoma, Geneva, sans-serif;
 	font-size:12px;
 	width:1100px;
 	margin:0 auto;
+    background: url(/bg.jpg);
 	}
-body * {
-	border: 1px solid red;
-}
-#header {height:100px;}
-#playground {width:800px;height:600px;float:left;}
-#scoreboard {margin-left:800px;height:600px;}
-#footer {clear:both;height:50px;}
+#header {
+    width:800px;height:100px;
+    line-height:100px;font-size:55px;
+    background:url(/light.png);
+    }
+#playground {
+    width:800px;height:600px;
+    float:left;
+    -webkit-box-shadow: rgba( 0, 0, 0, 0.3 ) 0px 1px 3px;
+    -webkit-border-radius: 5px;
+    padding: 10px;
+    background: whiteSmoke none;
+    }
+#scoreboard {
+    margin:20px 0 20px 820px;
+    height:560px;
+    padding:5px 20px;
+    background:url(/scoreBoard.png);
+    -webkit-border-radius:0 5px 5px 0;
+    }
+#footer {
+    clear:both;
+    height:50px;
+    padding:5px 10px;
+    }
 </style>
 <body>
-<canvas id="header" width="1100px" height="100px"></canvas>
+<div id="header">Snake.js</div>
 <div id="playground">
     <canvas id="canvas" width="800px" height="600px"></canvas></div>
-<div id="scoreboard">scoreboard</div>
+<div id="scoreboard">
+    <h1>Score board</h1>
+</div>
 <div id="footer">footer</div>
 </body>
 </html>
