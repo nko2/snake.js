@@ -154,6 +154,7 @@
                             socket.emit('set nickname', {nickname:newName});
                         }
                     });
+                $('.profile .color').css("background-color", snake.color);
                 socket.on('set nickname', function(newName){
                    console.log("i've got a new name!" + newName);
                    $('.profile .nickname').attr('value', newName); 
@@ -161,14 +162,23 @@
 
                 $('.outgoing .chatBox').keyup(function(event){
                     if(event.keyCode == 13){
-                        console.log('enter pressed');
-                        socket.emit('message', {message: $(this).attr('value')});
+                        var msg = $(this).attr('value');
+                        if(msg !== ""){
+                            socket.emit('message', {message: $(this).attr('value')});
+                            $(this).attr('value', '');
+                        }
+                    }
+                }).focus(function(event){
+                    if($(this).attr('value') == "Type here to chat with other snakes!"){
                         $(this).attr('value', '');
                     }
                 });
                 var messageArea = $('.messages .incoming');
                 socket.on('message', function(msg){
-                    console.log(msg);
+                    var con = $('<div class="msgs"></div>');
+                    $('<span class="from"></span>').append(msg.from).append(": ").appendTo(con);
+                    $('<span class="msg"></span>').append(msg.message).appendTo(con);
+                    messageArea.append(con);
                 });
 
             });
