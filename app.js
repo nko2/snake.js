@@ -31,11 +31,12 @@ var DEFAULT_NAMES = ['Sneezy', 'Sleepy', 'Dopey', 'Doc', 'Happy', 'Bashful', 'Gr
 var DEFAULT_COLORS = ['#C00', '#0C0', '#00C'];
 var X = { MIN : 0, LENGTH : 80 };
 var Y = { MIN : 0, LENGTH : 60 };
-var FRAME_LENGTH = 150; //ms
-var STATE = { ALIVE : 'alive', DEAD : 'dead', BABY : 'baby' };
+var FRAME_LENGTH = 500; //ms
+var STATE = { ALIVE : 'alive', DEATH_BY_BOUNDARY : 'deathByBoundary', BABY : 'baby' };
 var MAX_BABY = 10;
 var BABY_LENGTH = 3;
-var BABY_TIME = 3000;
+var BABY_TIME = 1000;
+var DEATH_TIME = 1000;
 
 // levels
 var level1 = (function() {
@@ -54,19 +55,46 @@ var level1 = (function() {
     return []
 })();
 
-var emptyMap = (function() {
-    var map = [];
-    for( var i = X.MIN, ii = X.LENGTH; i < ii; ++i ) {
-        map[i] = [];
-        for( var j = Y.MIN, jj = Y.LENGTH; j < jj; ++j ) {
-            map[i][j] = null;
-        }
-    }
-    return map;
-})();
-
 //server collision map
-var map = emptyMap;
+var Map = function(){
+    this.data = {};
+};
+Map.prototype.key = function( coord ) {
+    return '' + coord[0] + ',' + coord[1];
+};
+Map.prototype.get = function( coord ) {
+    return this.data[this.key(coord)];
+};
+
+Map.prototype.set = function( coord, o ) {
+    var point = this.get(coord);
+    if( !point ){ 
+        point = [];
+        point.push(o);
+        this.data[this.key(coord)] = point;
+    } else {
+        this.data[this.key(coord)].push(o);
+    }
+};
+Map.prototype.simulate = function() {
+    _.each( this.data, function(items, i){
+        var coord = i.split(',');
+        var x = +coord[0];
+        var y = +coord[1];
+        if ( x < X.MIN || y < Y.MIN || x >= X.LENGTH || y >= Y.LENGTH ) {
+            console.log('wall collision');
+            _.each( items, function( item ){
+                if( !item.diedAt ) {
+                    item.state = STATE.DEATH_BY_BOUNDARY;
+                    item.diedAt = Date.now();
+                }
+            });
+        }
+        if ( items.length > 1 ){
+            console.log('object collision');
+        }
+    });
+};
 
 // game
 var game = {
@@ -101,14 +129,19 @@ Snake.prototype.setState = function( state ) {
 };
 
 Snake.prototype.setDirection = function( direction ) {
+
     if ( OPPOSITE_DIRECTIONS[direction] !== this.direction ) {
-        this.direction = direction;
+        this.newDirection = direction;
     }
+};
+Snake.prototype.resetDirection = function() {
+    this.newDirection = 'right';
 };
 
 Snake.prototype.move = function() {
     var newX = this.body[0][0];
     var newY = this.body[0][1];
+    this.direction = this.newDirection;
     if ( this.direction == 'up' ) {
         --newY;
     } else if ( this.direction == 'down' ) {
@@ -122,6 +155,15 @@ Snake.prototype.move = function() {
     this.body.unshift([newX, newY]);
 };
 
+Snake.prototype.moveToStart = function() {
+    var start = [ BABY_LENGTH, (babyIndex++ % MAX_BABY) + 1 ];
+    var body = [];
+    for( var i = BABY_LENGTH, ii = 0; i > ii; --i ) {
+        body.push( [ i, start[1] ] );
+    }
+    this.setBody( body );
+    this.resetDirection();
+};
 
 // send system state
 setInterval( function() {
@@ -129,18 +171,36 @@ setInterval( function() {
     game.frame += 1;
     game.ts = Date.now();
 
+    var map = new Map();
     // compute new states
-    _.each(game.snakes, function( snake ) {
-        //new snakes
+    _.each(game.snakes, function( snake, i, o ) {
         if( snake.state == STATE.BABY && (Date.now() - snake.createdAt) > BABY_TIME) {
             snake.setState(STATE.ALIVE);
-            //var collision = map.addSnake(snake);
+        }
+        if( snake.state == STATE.DEATH_BY_BOUNDARY && (Date.now() - snake.diedAt) > DEATH_TIME) {
+            snake.createdAt = Date.now();
+            delete snake.diedAt;
+            snake.state = STATE.BABY;
+            snake.moveToStart();
+        }
+        if( snake.state == STATE.ALIVE ) {
+            snake.move();
         }
 
-        //move snakes
-        snake.move();
-        
+        if( snake.state == STATE.ALIVE ){
+            _.each(snake.body, function( section ) {
+                map.set(section, snake);
+            });
+        }
     });
+
+    map.simulate();
+/*
+console.log('snakes');
+    util.log(util.inspect(game.snakes, false, 3));
+console.log('map');
+    util.log(util.inspect(map, false, 3));
+*/
 
     console.log( 'Frame took ' + (Date.now() - start) + 'ms to compute' );
     // send to all the users
@@ -157,13 +217,7 @@ io.sockets.on('connection', function (socket) {
     snake.setNickname( DEFAULT_NAMES[+socket.id.substring(0, 10) % DEFAULT_NAMES.length] );
     snake.setColor( DEFAULT_COLORS[+socket.id.substring(0, 10) % DEFAULT_COLORS.length] );
     snake.setState( STATE.BABY );
-    var start = [ BABY_LENGTH, (babyIndex++ % MAX_BABY) + 1 ];
-    var body = [];
-    for( var i = BABY_LENGTH, ii = 0; i > ii; --i ) {
-        body.push( [ i, start[1] ] );
-    }
-    snake.setBody( body );
-    snake.setDirection( 'right' );
+    snake.moveToStart();
 
     game.snakes[socket.id] = snake;
 
