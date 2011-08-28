@@ -140,19 +140,15 @@
                 switch(keycode){
                     case 37: 
                         socket.emit('set direction', {direction:'left'});
-                        console.log('left');
                         break;
                     case 38: 
                         socket.emit('set direction', {direction:'up'});
-                        console.log('up');
                         break;
                     case 39: 
                         socket.emit('set direction', {direction:'right'});
-                        console.log('right');
                         break;
                     case 40: 
                         socket.emit('set direction', {direction:'down'});
-                        console.log('down');
                         break;
                 }
             });
