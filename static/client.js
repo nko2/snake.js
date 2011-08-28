@@ -123,7 +123,7 @@
             // connect
             var socket = io.connect("/");
             socket.on('game state', function(data){
-                //console.log(data.snakes);
+                console.log(data.snakes);
                 clearMap();
                 drawSnakes(data.snakes);
                 drawCherries(data.cherries);

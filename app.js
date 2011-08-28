@@ -31,8 +31,10 @@ var DEFAULT_NAMES = ['Sneezy', 'Sleepy', 'Dopey', 'Doc', 'Happy', 'Bashful', 'Gr
 var DEFAULT_COLORS = ['#C00', '#0C0', '#00C'];
 var X = { MIN : 0, LENGTH : 80 };
 var Y = { MIN : 0, LENGTH : 60 };
-var FRAME_LENGTH = 150; //ms
+var FRAME_LENGTH = 500; //ms
 var STATE = { ALIVE : 'alive', DEATH_BY_BOUNDARY : 'deathByBoundary', DEATH_BY_SNAKE : 'deathBySnake', BABY : 'baby' };
+var FOOD = { CHERRY : 'cherry' };
+
 var MAX_BABY = 10;
 var BABY_LENGTH = 3;
 var BABY_TIME = 1000;
@@ -66,7 +68,6 @@ var game = {
     cherries : [],
     walls : level1
 };
-
 
 //server collision map
 var Map = function(){
@@ -146,11 +147,13 @@ Snake.prototype.die = function( method ) {
     if( !this.diedAt ) {
         this.state = method;
         this.diedAt = Date.now();
+        this.action = actionBuilder.deathToAction(this.state);
     }
 };
 Snake.prototype.eat = function( item ) {
     if( item instanceof Cherry ){
         this.food += item.food;
+        this.action = actionBuilder.eatToAction(FOOD.CHERRY);
     }
 };
 Snake.prototype.setNickname = function( nickname ) {
@@ -244,6 +247,32 @@ Cherry.prototype.clear = function(){
     this.lifetime = 0;
 }
 
+// message
+var Action = function(){
+    this.i = 0;
+    this.actions = {};
+    this.actions[STATE.DEATH_BY_BOUNDARY] = ["You ran into a wall", "Try harder, you might make it one day", "Ouch!!"];
+    this.actions[STATE.DEATH_BY_SNAKE] = ["Haha, you ran into another snake", "Don't worry, respawning in 3, 2,...", "Just give up now.."];
+
+    this.actions[FOOD.CHERRY] = ["You ate a cherry", "Nom nom nom", "Watch me grow!"];
+};
+Action.prototype.deathToAction = function( state ){
+    return {
+        type : state,
+        message: this.actions[state][ ++this.i % this.actions[state].length]
+    };
+};
+Action.prototype.eatToAction = function( food ){
+    return {
+        type : food,
+        message: this.actions[food][ ++this.i % this.actions[food].length]
+    };
+};
+Action.prototype.toString = function(){
+    return util.inspect(this);
+};
+var actionBuilder = new Action();
+
 // GAME!
 setInterval( function() {
     var start = Date.now();
@@ -253,15 +282,20 @@ setInterval( function() {
     var map = new Map();
     // compute new snake states
     _.each(game.snakes, function( snake, i, o ) {
+        delete snake.action;
+
+        //let move if wait for enough time
         if( snake.state == STATE.BABY && (Date.now() - snake.createdAt) > BABY_TIME) {
             snake.setState(STATE.ALIVE);
         }
+        //move to start if died for enough time
         if( snake.died() && (Date.now() - snake.diedAt) > DEATH_TIME) {
             snake.createdAt = Date.now();
             delete snake.diedAt;
             snake.state = STATE.BABY;
             snake.moveToStart();
         }
+        //move alive snakes
         if( snake.state == STATE.ALIVE ) {
             snake.move();
         }
