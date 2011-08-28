@@ -70,6 +70,14 @@ var game = {
     walls : level1
 };
 
+var globalStats = {
+    snakesSpawned : 0,
+    cherriesEaten : 0,
+    playersConnected : 0,
+    longestSnakeLength : 0,
+    longestSnakeName : ''
+};
+
 //server collision map
 var Map = function(){
     this.data = {};
@@ -145,12 +153,17 @@ var Snake = function(id){
     this.createdAt = Date.now();
     this.food = 0;
     this.score = 0;
+    ++globalStats.snakesSpawned;
 };
 Snake.prototype.die = function( method ) {
     if( !this.diedAt ) {
         this.state = method;
         this.diedAt = Date.now();
         this.action = actionBuilder.deathToAction(this.state);
+        if(this.body.length > globalStats.longestSnakeLength){
+            globalStats.longestSnakeLength = this.body.length;
+            globalStats.longestSnakeName = this.nickname;
+        }
     }
 };
 Snake.prototype.eat = function( item ) {
@@ -158,6 +171,7 @@ Snake.prototype.eat = function( item ) {
         this.food += item.food;
         this.action = actionBuilder.eatToAction(FOOD.CHERRY);
         this.score += 8;
+        ++globalStats.cherriesEaten;
     }
 };
 Snake.prototype.setNickname = function( nickname ) {
@@ -361,6 +375,8 @@ io.set('transports', [
   ]);
 io.sockets.on('connection', function (socket) {
 
+    ++globalStats.playersConnected;
+
     var snake = new Snake(socket.id);
     snake.setNickname( DEFAULT_NAMES[+socket.id.substring(0, 10) % DEFAULT_NAMES.length] );
     snake.setColor( DEFAULT_COLORS[+socket.id.substring(0, 10) % DEFAULT_COLORS.length] );
@@ -370,6 +386,7 @@ io.sockets.on('connection', function (socket) {
     game.snakes[socket.id] = snake;
     
     socket.emit('connected', snake);
+    socket.emit('globalStats', globalStats);
 
     //api: socket.emit('set nickname', {nickname: 'bot'});
     socket.on('set nickname', function (data) {

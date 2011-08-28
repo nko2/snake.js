@@ -183,6 +183,20 @@
                    $('.profile .nickname').attr('value', newName); 
                 });
 
+/*
+var globalStats = {
+    snakesSpawned : 0,
+    cherriesEaten : 0,
+    playersConnected : 0,
+    longestSnakeLength : 0,
+    longestSnakeName : ''
+};
+*/
+                socket.on('globalStats', function(globalStats){
+                    var html = 'globaldata' + globalStats.playersConnected;
+                    $('#globalStats').html(html);
+                });
+
                 $('.outgoing .chatBox').keyup(function(event){
                     if(event.keyCode == 13){
                         var msg = $(this).attr('value');
