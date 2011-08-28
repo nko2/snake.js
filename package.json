@@ -18,6 +18,7 @@
     "nko": "*",
     "express":"*",
     "socket.io":"*",
-    "underscore":"*"
+    "underscore":"*",
+    "validator":"0.2.7"
   }
 }
