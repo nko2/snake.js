@@ -206,12 +206,11 @@ var globalStats = {
 */
                 socket.on('globalStats', function(globalStats){
                     var globalStat = $('#globalStats').html("");
-                    $("<span class='stat'/>").html("snakes_Spawned: " + globalStats.snakesSpawned).appendTo(globalStat);
-                    $("<span class='stat'/>").html("cherries_Eaten: " + globalStats.cherriesEaten).appendTo(globalStat);
-                    $("<span class='stat'/>").html("players_Connected: " + globalStats.playersConnected).appendTo(globalStat);
+                    $("<span class='stat'/>").html("total_snakes_born: " + globalStats.snakesSpawned).appendTo(globalStat);
+                    $("<span class='stat'/>").html("total_cherries_Eaten: " + globalStats.cherriesEaten).appendTo(globalStat);
+                    $("<span class='stat'/>").html("total_players_ever: " + globalStats.playersConnected).appendTo(globalStat);
                     $("<br/>").appendTo(globalStat);
-                    $("<span class='stat'/>").html("longest_Snake_Length: " + globalStats.longestSnakeLength).appendTo(globalStat);
-                    $("<span class='stat'/>").html("longest_Snake_Name: " + globalStats.longestSnakeName).appendTo(globalStat);
+                    $("<span class='stat'/>").html("longest_snake: " + globalStats.longestSnakeName + " [ length = " + globalStats.longestSnakeLength + " ] ").appendTo(globalStat);
                 });
 
                 $('.outgoing .chatBox').keyup(function(event){
