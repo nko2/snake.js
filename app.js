@@ -37,8 +37,9 @@ var MAX_BABY = 10;
 var BABY_LENGTH = 3;
 var BABY_TIME = 3000;
 
-// maps
-var map1 = function() {
+// levels
+var level1 = (function() {
+    /*
     var walls = [];
     _.each( _.range( X.MIN, X.LENGTH ), function( x ) {
         walls.push( [ x, Y.MIN ] );
@@ -49,14 +50,30 @@ var map1 = function() {
         walls.push( [ X.LENGTH - 1, y ] );
     });
     return walls;
-};
+    */
+    return []
+})();
+
+var emptyMap = (function() {
+    var map = [];
+    for( var i = X.MIN, ii = X.LENGTH; i < ii; ++i ) {
+        map[i] = [];
+        for( var j = Y.MIN, jj = Y.LENGTH; j < jj; ++j ) {
+            map[i][j] = null;
+        }
+    }
+    return map;
+})();
+
+//server collision map
+var map = emptyMap;
 
 // game
 var game = {
     frame : 0,
     ts : Date.now(),
     snakes : {},
-    walls : map1()
+    walls : level1
 };
 
 // new snakes
@@ -112,13 +129,12 @@ setInterval( function() {
     game.frame += 1;
     game.ts = Date.now();
 
-    // compute collisions
-
-    // compute new state
+    // compute new states
     _.each(game.snakes, function( snake ) {
         //new snakes
         if( snake.state == STATE.BABY && (Date.now() - snake.createdAt) > BABY_TIME) {
             snake.setState(STATE.ALIVE);
+            //var collision = map.addSnake(snake);
         }
 
         //move snakes
@@ -141,7 +157,7 @@ io.sockets.on('connection', function (socket) {
     snake.setNickname( DEFAULT_NAMES[+socket.id.substring(0, 10) % DEFAULT_NAMES.length] );
     snake.setColor( DEFAULT_COLORS[+socket.id.substring(0, 10) % DEFAULT_COLORS.length] );
     snake.setState( STATE.BABY );
-    var start = [ BABY_LENGTH, (++babyIndex % MAX_BABY) ];
+    var start = [ BABY_LENGTH, (babyIndex++ % MAX_BABY) + 1 ];
     var body = [];
     for( var i = BABY_LENGTH, ii = 0; i > ii; --i ) {
         body.push( [ i, start[1] ] );
